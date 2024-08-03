@@ -1,13 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 const dotenv = require('dotenv');
 const todoRoutes = require('./routes/todo');
-
+const corsMiddleware = require('./middleware/corsMiddleware'); 
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(corsMiddleware); 
 app.use(express.json());
 
 const db = process.env.MONGODB_URI || 'your_default_mongoDB_URI';
@@ -23,5 +22,3 @@ mongoose.connect(db, {
 app.use('/api/todos', todoRoutes);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
-
-createInitialTodo();
