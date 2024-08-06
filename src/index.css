@@ -1,0 +1,16 @@
+body {
+  background-color: #f8f9fa;
+}
+
+.container {
+  max-width: 800px;
+}
+
+pre {
+  overflow: auto;
+  background-color: #f8f9fa; 
+}
+
+.card {
+  margin-top: 20px;
+}
