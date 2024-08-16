@@ -1,0 +1,65 @@
+body {
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background: #f7f7f7;
+}
+
+.app {
+  text-align: center;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.emoji-vote-container {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.emoji-vote-container div {
+  cursor: pointer;
+  font-size: 30px;
+  transition: transform 0.2s;
+}
+
+.emoji-vote-container div:hover {
+  transform: scale(1.2);
+}
+
+button {
+  padding: 10px 20px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+.show-results-button {
+  background: #28a745;
+  color: #fff;
+}
+
+.clear-results-button {
+  background: #dc3545;
+  color: #fff;
+  margin-top: 10px;
+}
+
+button:hover {
+  opacity: 0.9;
+}
