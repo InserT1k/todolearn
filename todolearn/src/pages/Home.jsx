@@ -5,7 +5,7 @@ import { Container } from 'react-bootstrap';
 const Home = () => {
   return (
     <Container className="mt-4">
-      <h1 className="my-4">Todo List</h1>
+      
       <TodoList />
     </Container>
   );
