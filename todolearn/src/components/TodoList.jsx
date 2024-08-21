@@ -7,14 +7,12 @@ import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import TodoItem from './TodoItem';
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
 
 const TodoList = () => {
   const [todos, setTodos] = useState([]);
   const [open, setOpen] = useState(false);
-  const [newTodo, setNewTodo] = useState('');
-  const [newDescription, setNewDescription] = useState('');
-  const [dueDate, setDueDate] = useState(null);
-  const [priority, setPriority] = useState('medium');
   const [selectedTodo, setSelectedTodo] = useState(null);
 
   useEffect(() => {
@@ -25,38 +23,42 @@ const TodoList = () => {
     fetchTodos();
   }, []);
 
-  const handleOpen = () => {
-    setOpen(true);
-    setNewTodo('');
-    setNewDescription('');
-    setDueDate(null);
-    setPriority('medium');
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => {
+    setOpen(false);
     setSelectedTodo(null);
   };
 
-  const handleClose = () => setOpen(false);
+  const TodoSchema = Yup.object().shape({
+    title: Yup.string().min(5, 'Title must be at least 5 characters long').required('Title is required'),
+    description: Yup.string().min(5, 'Description must be at least 5 characters long'),
+    dueDate: Yup.date().nullable().required('Due Date is required'),
+  });
 
-  const handleNewTodoSubmit = async (e) => {
-    e.preventDefault();
-    if (newTodo.trim() && dueDate) {
-      const newTask = selectedTodo
-        ? await updateTodo(selectedTodo._id, { title: newTodo, description: newDescription, dueDate: dueDate.toISOString(), priority })
-        : await createTodo({ title: newTodo, description: newDescription, dueDate: dueDate.toISOString(), priority });
+  const handleFormSubmit = async (values, { resetForm }) => {
+    const formattedValues = {
+      ...values,
+      dueDate: values.dueDate ? values.dueDate.toISOString() : null,
+    };
 
-      setTodos(selectedTodo ? todos.map(t => (t._id === newTask._id ? newTask : t)) : [...todos, newTask]);
-      handleClose();
+    if (selectedTodo) {
+      await updateTodo(selectedTodo._id, formattedValues);
+      setTodos(todos.map(t => (t._id === selectedTodo._id ? { ...selectedTodo, ...formattedValues } : t)));
     } else {
-      alert('Title and Due Date are required');
+      const newTask = await createTodo(formattedValues);
+      setTodos([...todos, newTask]);
     }
+
+    handleClose();
+    resetForm();
   };
 
   const handleEdit = (todo) => {
-    setNewTodo(todo.title);
-    setNewDescription(todo.description);
-    setDueDate(dayjs(todo.dueDate));
-    setPriority(todo.priority);
-    setSelectedTodo(todo);
-    setOpen(true);
+    setSelectedTodo({
+      ...todo,
+      dueDate: dayjs(todo.dueDate)
+    });
+    handleOpen();
   };
 
   const handleDelete = async (id) => {
@@ -101,7 +103,6 @@ const TodoList = () => {
 
       <Modal open={open} onClose={handleClose}>
         <Box
-          component="form"
           sx={{
             position: 'absolute',
             top: '50%',
@@ -113,54 +114,81 @@ const TodoList = () => {
             boxShadow: 24,
             p: 4,
           }}
-          onSubmit={handleNewTodoSubmit}
         >
           <Typography variant="h6" component="h2" gutterBottom>
             {selectedTodo ? 'Edit Todo' : 'Create Todo'}
           </Typography>
-          <TextField
-            label="Title"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-            required
-          />
-          <TextField
-            label="Description"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            multiline
-            rows={3}
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
-          />
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              label="Due Date"
-              value={dueDate}
-              onChange={(date) => setDueDate(date)}
-              slotProps={{ textField: { fullWidth: true, margin: 'normal', required: true } }}
-            />
-          </LocalizationProvider>
-          <TextField
-            select
-            label="Priority"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
+          <Formik
+            initialValues={{
+              title: selectedTodo?.title || '',
+              description: selectedTodo?.description || '',
+              dueDate: selectedTodo?.dueDate || null,
+              priority: selectedTodo?.priority || 'medium',
+            }}
+            validationSchema={TodoSchema}
+            onSubmit={handleFormSubmit}
+            enableReinitialize
           >
-            <MenuItem value="low">Low</MenuItem>
-            <MenuItem value="medium">Medium</MenuItem>
-            <MenuItem value="high">High</MenuItem>
-          </TextField>
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-            {selectedTodo ? 'Save Changes' : 'Add Todo'}
-          </Button>
+            {({ errors, touched, setFieldValue }) => (
+              <Form>
+                <Field
+                  as={TextField}
+                  name="title"
+                  label="Title"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  error={touched.title && Boolean(errors.title)}
+                  helperText={touched.title && errors.title}
+                />
+                <Field
+                  as={TextField}
+                  name="description"
+                  label="Description"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  multiline
+                  rows={3}
+                  error={touched.description && Boolean(errors.description)}
+                  helperText={touched.description && errors.description}
+                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DateTimePicker
+                    label="Due Date"
+                    value={selectedTodo?.dueDate || null}
+                    onChange={(value) => setFieldValue('dueDate', value)}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        fullWidth
+                        margin="normal"
+                        required
+                        error={touched.dueDate && Boolean(errors.dueDate)}
+                        helperText={touched.dueDate && errors.dueDate}
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
+                <Field
+                  as={TextField}
+                  name="priority"
+                  select
+                  label="Priority"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                >
+                  <MenuItem value="low">Low</MenuItem>
+                  <MenuItem value="medium">Medium</MenuItem>
+                  <MenuItem value="high">High</MenuItem>
+                </Field>
+                <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
+                  {selectedTodo ? 'Save Changes' : 'Add Todo'}
+                </Button>
+              </Form>
+            )}
+          </Formik>
         </Box>
       </Modal>
     </Container>
