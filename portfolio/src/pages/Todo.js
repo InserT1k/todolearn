@@ -22,7 +22,6 @@ function Todo() {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editTaskText, setEditTaskText] = useState('');
 
-  // Додавання завдання
   const addTodo = () => {
     if (task) {
       setTodos([...todos, { text: task, completed: false }]);
@@ -30,26 +29,22 @@ function Todo() {
     }
   };
 
-  // Видалення завдання
   const deleteTodo = (index) => {
     setTodos(todos.filter((_, i) => i !== index));
   };
 
-  // Позначення завдання виконаним
   const toggleComplete = (index) => {
     const updatedTodos = [...todos];
     updatedTodos[index].completed = !updatedTodos[index].completed;
     setTodos(updatedTodos);
   };
 
-  // Відкриття модального вікна для редагування
   const openEditModal = (index) => {
     setEditingTask(index);
     setEditTaskText(todos[index].text);
     setEditModalVisible(true);
   };
 
-  // Збереження відредагованого завдання
   const saveEditedTask = () => {
     const updatedTodos = [...todos];
     updatedTodos[editingTask].text = editTaskText;
@@ -111,12 +106,11 @@ function Todo() {
                 </Typography.Text>
               </List.Item>
             )}
-            style={{ marginTop: '20px', width: '800px', fontSize: '18px' }} // Збільшено ширину контейнера
+            style={{ marginTop: '20px', width: '800px', fontSize: '18px' }} 
           />
         </Col>
       </Row>
 
-      {/* Модальне вікно для редагування завдання */}
       <Modal
         title="Редагувати завдання"
         visible={editModalVisible}
