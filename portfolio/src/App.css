@@ -36,3 +36,35 @@
     transform: rotate(360deg);
   }
 }
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.ant-layout-footer {
+  text-align: center;
+  background-color: #001529;
+  color: white;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
+
+.page-content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+h1, h2 {
+  font-size: 36px;
+  color: #1890ff;
+}
+
+.ant-menu-item {
+  font-size: 18px;
+}
+
+.ant-list-item {
+  font-size: 18px;
+}
