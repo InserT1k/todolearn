@@ -64,7 +64,12 @@ function Todo() {
             placeholder="Введіть нове завдання"
             style={{ width: '600px', marginRight: '10px', fontSize: '16px' }}
           />
-          <Button type="primary" onClick={addTodo} style={{ fontSize: '16px', height: '40px' }}>
+          <Button
+            type="primary"
+            onClick={addTodo}
+            style={{ fontSize: '16px', height: '40px' }}
+            data-testid="add-task-btn" // Додали data-testid
+          >
             Додати
           </Button>
 
@@ -78,6 +83,7 @@ function Todo() {
                     checked={item.completed}
                     onChange={() => toggleComplete(index)}
                     style={{ fontSize: '16px' }}
+                    data-testid={`checkbox-${index}`} // Додали data-testid для чекбокса
                   >
                     {item.completed ? 'Виконано' : 'Не виконано'}
                   </Checkbox>,
@@ -106,14 +112,14 @@ function Todo() {
                 </Typography.Text>
               </List.Item>
             )}
-            style={{ marginTop: '20px', width: '800px', fontSize: '18px' }} 
+            style={{ marginTop: '20px', width: '800px', fontSize: '18px' }}
           />
         </Col>
       </Row>
 
       <Modal
         title="Редагувати завдання"
-        visible={editModalVisible}
+        open={editModalVisible}
         onOk={saveEditedTask}
         onCancel={() => setEditModalVisible(false)}
         okText="Зберегти"
